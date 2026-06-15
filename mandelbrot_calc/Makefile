@@ -26,7 +26,7 @@ clean:
 	rm -f $(OBJS)  *.mod 
 
 clean_all:
-	rm -f $(OBJS) $(EXE) *.mod *.txt
+	rm -f $(OBJS) $(EXE) *.mod *.txt *.bin
 
 open:
 	feh -F mandelbrot_color.png
