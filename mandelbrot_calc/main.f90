@@ -50,6 +50,7 @@ contains
 
         open(unit=10, file=filename, status='replace')
 
+        write(10,*) nx, ny, max_iter, x_min, x_max, y_min, y_max
         ! Jede Zeile der Datei entspricht einer y-Koordinate
         do j = 1, ny
             do i = 1, nx

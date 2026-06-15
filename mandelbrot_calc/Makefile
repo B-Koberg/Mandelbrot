@@ -6,7 +6,7 @@ EXE = mandelbrot
 
 .PHONY: all build run py clean
 
-all: build run
+all: build run clean py 
 
 build: $(EXE)
 
@@ -23,4 +23,7 @@ py:
 	python3 $(or $(SCRIPT),plot.py) $(or $(ARGS),)
 
 clean:
+	rm -f $(OBJS)  *.mod 
+
+clean_all:
 	rm -f $(OBJS) $(EXE) *.mod *.txt
