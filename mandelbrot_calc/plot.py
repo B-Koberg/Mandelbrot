@@ -1,35 +1,50 @@
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 import numpy as np
 from PIL import Image
-import sys
+import matplotlib.cm as cm
+import gc
+import os
+import time
+from datetime import datetime
+
+def now_hms():
+    return datetime.now().strftime("%H:%M:%S")
+
+start_time = time.time()
+print(f"({now_hms()}) Starte Plot-Erstellung...")
+
+print(f"({now_hms()}) Lese Header und Daten...")
+fn = "mandelbrot_output.bin"
+with open(fn, "rb") as f:
+    header = np.fromfile(f, dtype=np.float64, count=7)
+nx, ny = int(header[0]), int(header[1])
+header_bytes = 7 * 8  # 7 float64
+
+mm = np.memmap(fn, dtype=np.int32, mode='r', offset=header_bytes, shape=(nx * ny,))
+arr_view = mm.reshape((nx, ny), order='F').T  # arr[y,x]
 
 
-with open("mandelbrot_output.txt", "r") as f:
-    # Erste Zeile lesen
-    first_line = f.readline().strip()
+possible_block_h = [ny / i for i in [0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]]
+min_block_h_idx = np.argmin([abs(bh - 4092) for bh in possible_block_h])
+block_h = round(possible_block_h[min_block_h_idx]) + 1 
 
-# Erste Zeile in Zahlen umwandeln
-args = np.fromstring(first_line, sep=' ')
+print(f"({now_hms()}) Erstelle Bild mit Pixelreihen im Arbeitsspeicher {block_h} von {ny} Pixelreihen insgesamt...")
+img = Image.new("RGB", (nx, ny))
 
-nx, ny, max_iter, x_min, x_max, y_min, y_max = args
+for y0 in range(0, ny, block_h):
+    y1 = min(y0 + block_h, ny)
+    block = arr_view[y0:y1, :]
+    bmin, bmax = block.min(), block.max()
+    if bmax == bmin:
+        norm = np.zeros_like(block, dtype=np.float32)
+    else:
+        norm = (block - bmin) / (bmax - bmin)
+    rgb_block = (cm.inferno(norm)[:, :, :3] * 255).astype('uint8')
+    img.paste(Image.fromarray(rgb_block), (0, y0))
+    del block, norm, rgb_block
+    gc.collect()
 
-# Rest der Datei laden
-data = np.loadtxt("mandelbrot_output.txt", skiprows=1)
-
-print(args, data.shape)
-
-
-# Normieren
-norm = (data - data.min()) / (data.max() - data.min())
-
-# Colormap anwenden (liefert RGBA)
-colored = cm.inferno(norm)
-
-# Alpha entfernen
-rgb = (colored[:, :, :3] * 255).astype(np.uint8)
-
-img = Image.fromarray(rgb, mode="RGB")
+print(f"({now_hms()}) Bild erstellt, speichere und lösche temporäre Daten...")
 img.save("mandelbrot_color.png")
-
-
+del img, arr_view, mm, header
+gc.collect()
+print(f"({now_hms()}) Fertig: mandelbrot_color.png gespeichert und RAM freigegeben.")

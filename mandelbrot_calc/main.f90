@@ -36,14 +36,13 @@ program mandelbrot
     call MPI_Finalize()
 
     if (rank == 0) then
-        call save_to_txtfile("mandelbrot_output.txt", x_pix, y_pix, iter_array)
+        call save_to_binary("mandelbrot_output.bin", iter_array)
     end if
 
 contains
 
-    subroutine save_to_txtfile(filename, x_pix, y_pix, iter_array)
+    subroutine save_to_txtfile(filename, iter_array)
         character(len=*), intent(in) :: filename
-        integer, intent(in) :: x_pix(nx), y_pix(ny)
         integer, intent(in) :: iter_array(nx, ny)
 
         integer :: i, j
@@ -61,5 +60,24 @@ contains
 
         close(10)
     end subroutine save_to_txtfile
+
+    subroutine save_to_binary(filename, iter_array)
+        character(len=*), intent(in) :: filename
+        integer, intent(in) :: iter_array(nx, ny)
+        integer :: unit
+
+        open(newunit=unit, file=filename, access="stream", form="unformatted", status="replace")
+
+        ! Header IMMER als REAL(8) schreiben
+        write(unit) real(nx,8), real(ny,8), real(max_iter,8), &
+                    real(x_min,8), real(x_max,8), real(y_min,8), real(y_max,8)
+
+        ! Array als INTEGER(4)
+        write(unit) iter_array
+
+        close(unit)
+    end subroutine save_to_binary
+
+
 
 end program mandelbrot

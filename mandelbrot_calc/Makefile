@@ -29,4 +29,4 @@ clean_all:
 	rm -f $(OBJS) $(EXE) *.mod *.txt
 
 open:
-	xdg-open mandelbrot_color.png
+	feh -F mandelbrot_color.png
