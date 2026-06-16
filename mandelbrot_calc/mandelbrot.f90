@@ -41,20 +41,40 @@ contains
     
     end function iter_calc
 
-    subroutine mandelbrot_set(x_pix_array, y_pix_array, local_ny, iter_array)
-        integer, intent(in) :: x_pix_array(:), y_pix_array(:)
-        integer, intent(in) ::local_ny
+    subroutine mandelbrot_set(x_pix_array, y_pix_array, local_ny, iter_array, rank)
 
+        use mpi_f08
+        implicit none
+
+        integer, intent(in) :: x_pix_array(:), y_pix_array(:)
+        integer, intent(in) :: local_ny, rank
         integer, intent(out) :: iter_array(nx, local_ny)
 
         integer :: i, j
+        integer :: progress
+        integer :: next_print = 10
+        integer :: time(8)
 
-    
-        do i = 1, size(x_pix_array)
-            do j = 1, size(y_pix_array)
-                iter_array(i,j) = iter_calc(x_pix_array(i), y_pix_array(j))
+
+        do i = 1, size(y_pix_array)
+
+            do j = 1, size(x_pix_array)
+                iter_array(j,i) = iter_calc(x_pix_array(j), y_pix_array(i))
             end do
+
+            if (rank == 0) then
+                progress = int(100.0 * i / local_ny)
+                if (progress >= next_print) then
+                    call date_and_time(values=time)
+                    write(*,'("[",I1.1,"](",I2.2,":",I2.2,":",I2.2,") Progress: ",I0,"%")') &
+                        rank, time(5), time(6), time(7), progress
+
+                    next_print = next_print + 10
+                end if
+            end if
+
         end do
+
     end subroutine mandelbrot_set
 
 end module mandelbrot

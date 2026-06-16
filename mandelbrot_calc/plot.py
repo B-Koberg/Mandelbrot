@@ -23,7 +23,7 @@ mm = np.memmap(fn, dtype=np.int32, mode='r', offset=header_bytes, shape=(nx * ny
 arr_view = mm.reshape((nx, ny), order='F').T  # arr[y,x]
 
 
-possible_block_h = [ny / i for i in [0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]]
+possible_block_h = [ny / i for i in [0.0625, 0.125, 0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]]
 min_block_h_idx = np.argmin([abs(bh - 4092) for bh in possible_block_h])
 block_h = round(possible_block_h[min_block_h_idx]) + 1 
 

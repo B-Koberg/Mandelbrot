@@ -24,18 +24,25 @@ program mandelbrot
     call MPI_Comm_rank(MPI_COMM_WORLD, rank)
     call MPI_Comm_size(MPI_COMM_WORLD, size)
 
+    if (rank == 0) call print_time(rank, "Starting Mandelbrot set calculation; Splitting arrays...")
+
     call split_arrays(rank, size, y_pix, y_pix_local, local_ny)
     allocate(iter_array_local(nx, local_ny))
 
-    call mandelbrot_set(x_pix, y_pix_local, local_ny, iter_array_local)
+    if (rank == 0) call print_time(rank, "Begin calculation...")
+
+    call mandelbrot_set(x_pix, y_pix_local, local_ny, iter_array_local, rank)
+
+    if (rank == 0) call print_time(rank, "Combining results...")
 
     allocate(recvcounts(size), displs(size))
     call gather_2d(local_ny, rank, size, iter_array_local, iter_array, recvcounts, displs)
 
-
     call MPI_Finalize()
 
+    
     if (rank == 0) then
+        call print_time(rank, "Saving results...")
         call save_to_binary("mandelbrot_output.bin", iter_array)
     end if
 
@@ -78,6 +85,15 @@ contains
         close(unit)
     end subroutine save_to_binary
 
+    subroutine print_time(rank, message)
+        integer, intent(in) :: rank
+        character(len=*), intent(in) :: message
+        integer :: time(8)
+
+        call date_and_time(values=time)
+        write(*,'("[",I1.1,"](",I2.2,":",I2.2,":",I2.2,") ",A)') &
+            rank, time(5), time(6), time(7), message
+    end subroutine print_time
 
 
 end program mandelbrot
