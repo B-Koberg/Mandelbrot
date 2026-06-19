@@ -1,0 +1,42 @@
+==== Build started: Fr 19. Jun 17:14:55 CEST 2026 ====
+make[1]: Verzeichnis „/home/bastian-koberg/Projects/Fortran/mandelbrot_calc“ wird betreten
+mpifort  -c parameters.f90 -o parameters.o
+mpifort  -c mpi_utils.f90 -o mpi_utils.o
+mpifort  -c mandelbrot.f90 -o mandelbrot.o
+mpifort  -c main.f90 -o main.o
+mpifort parameters.o mpi_utils.o mandelbrot.o main.o -o mandelbrot
+make[1]: Verzeichnis „/home/bastian-koberg/Projects/Fortran/mandelbrot_calc“ wird verlassen
+make[1]: Verzeichnis „/home/bastian-koberg/Projects/Fortran/mandelbrot_calc“ wird betreten
+mpirun --oversubscribe -np 8 ./mandelbrot
+[0](17:14:56) Starting Mandelbrot set calculation; Splitting arrays...
+[0](17:14:56) Begin calculation...
+[0](17:14:56) Combining results...
+[4](17:14:56) Progress: 10%
+[4](17:14:56) Progress: 20%
+[4](17:14:56) Progress: 30%
+[4](17:14:56) Progress: 40%
+[4](17:14:57) Progress: 50%
+[4](17:14:57) Progress: 60%
+[4](17:14:57) Progress: 70%
+[4](17:14:57) Progress: 80%
+[4](17:14:57) Progress: 90%
+[4](17:14:57) Progress: 100%
+[0](17:14:57) Saving results...
+make[1]: Verzeichnis „/home/bastian-koberg/Projects/Fortran/mandelbrot_calc“ wird verlassen
+make[1]: Verzeichnis „/home/bastian-koberg/Projects/Fortran/mandelbrot_calc“ wird betreten
+rm -f parameters.o mpi_utils.o mandelbrot.o main.o *.mod
+make[1]: Verzeichnis „/home/bastian-koberg/Projects/Fortran/mandelbrot_calc“ wird verlassen
+make[1]: Verzeichnis „/home/bastian-koberg/Projects/Fortran/mandelbrot_calc“ wird betreten
+python3 plot.py 
+(17:14:57) Starte Plot-Erstellung...
+(17:14:57) Lese Header und Daten...
+(17:14:57) Erstelle Bild mit Pixelreihen im Arbeitsspeicher 1001 von 3000 Pixelreihen insgesamt...
+(17:14:57) Progress 1001/3000 Pixelreihen verarbeitet...
+(17:14:57) Progress 2002/3000 Pixelreihen verarbeitet...
+(17:14:57) Progress 3000/3000 Pixelreihen verarbeitet...
+(17:14:57) Bild erstellt, speichere und lösche temporäre Daten...
+(17:14:57) Fertig: mandelbrot_maxiter.png gespeichert und RAM freigegeben.
+make[1]: Verzeichnis „/home/bastian-koberg/Projects/Fortran/mandelbrot_calc“ wird verlassen
+make[1]: Verzeichnis „/home/bastian-koberg/Projects/Fortran/mandelbrot_calc“ wird betreten
+make[1]: Verzeichnis „/home/bastian-koberg/Projects/Fortran/mandelbrot_calc“ wird verlassen
+==== Build finished: Fr 19. Jun 17:14:57 CEST 2026 ====
