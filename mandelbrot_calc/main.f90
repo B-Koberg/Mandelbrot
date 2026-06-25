@@ -2,7 +2,7 @@ program mandelbrot
     use mpi_f08
     use parameters
     use mandelbrot, only: mandelbrot_set
-    use mpi_utils, only: split_arrays, gather_2d
+    use mpi_utils, only: split_arrays, gather_2d, split_arrays_weighted, gather_2d_weighted
     implicit none
 
     integer :: rank, size
@@ -27,6 +27,7 @@ program mandelbrot
     if (rank == 0) call print_time(rank, "Starting Mandelbrot set calculation; Splitting arrays...")
 
     call split_arrays(rank, size, y_pix, y_pix_local, local_ny)
+    print *, "Rank ", rank, " has ", local_ny, " rows. From", y_pix_local(1), "to", y_pix_local(local_ny)
     allocate(iter_array_local(nx, local_ny))
 
     if (rank == 0) call print_time(rank, "Begin calculation...")
@@ -45,6 +46,7 @@ program mandelbrot
         call print_time(rank, "Saving results...")
         call save_to_binary("mandelbrot_output.bin", iter_array)
     end if
+
 
 contains
 
@@ -76,8 +78,10 @@ contains
         open(newunit=unit, file=filename, access="stream", form="unformatted", status="replace")
 
         ! Header IMMER als REAL(8) schreiben
+        !vielleicht hdf5 lite variablen mit namen, typsicher
         write(unit) real(nx,8), real(ny,8), real(max_iter,8), &
                     real(x_min,8), real(x_max,8), real(y_min,8), real(y_max,8)
+        !!!!! use iso-fontran_env und und only real64, integer parameter:: wp = real64, auch für mpi_wp
 
         ! Array als INTEGER(4)
         write(unit) iter_array
