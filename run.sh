@@ -14,6 +14,9 @@ LOGFILE="build_${TIMESTAMP}.log"
 # Voller Pfad zur Logdatei
 LOGPATH="output/.logs/${LOGFILE}"
 
+# Löche bin Dateien, wichtig für umschalten von single_file auf multiple_files, sonst werden die alten bin Dateien nicht überschrieben
+rm -f output/*.bin
+
 # Alle folgenden Ausgaben in die Logdatei schreiben und gleichzeitig auf der Konsole anzeigen
 exec > >(tee -a "$LOGPATH") 2>&1
 

@@ -29,8 +29,8 @@ contains
         y_pix_local = y_pix(starty:endy)
     end subroutine split_arrays
 
-    subroutine gather_2d(iter_array, iter_array_local, local_ny, rank, size)
-        integer, intent(in) :: local_ny, rank, size
+    subroutine gather_2d(iter_array, iter_array_local, local_ny, size)
+        integer, intent(in) :: local_ny, size
         integer, intent(in) :: iter_array_local(nx, local_ny)
         integer, intent(out) :: iter_array(nx, ny)
         integer, allocatable :: recvcounts(:), displs(:)

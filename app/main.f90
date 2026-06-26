@@ -14,6 +14,8 @@ program mandelbrot
 
     integer :: local_ny
 
+    character(len=1) :: single_file = 's'  ! 's' for single file, 'm' for multiple files
+
 
     x_pix = [(i, i = 1, nx)]
     y_pix = [(j, j = 1, ny)]
@@ -31,30 +33,35 @@ program mandelbrot
 
     call mandelbrot_set(x_pix, y_pix_local, iter_array_local, local_ny, rank, size)
 
-    if (rank == 0) call print_time(rank, "Combining results...")
+    
 
-    call gather_2d(iter_array, iter_array_local, local_ny, rank, size)
 
+    if (single_file == 's') then
+        if (rank == 0) call print_time(rank, "Combining results...")
+        call gather_2d(iter_array, iter_array_local, local_ny, size)
+        if (rank == 0) then
+            call print_time(rank, "Saving results...")
+            call save_to_binary(iter_array, ny, rank)
+        end if
+    else
+        call print_time(rank, "Saving results...")
+        call save_to_binary(iter_array_local, local_ny, rank)
+    end if
+        
     call MPI_Finalize()
 
-    
-    if (rank == 0) then
-        call print_time(rank, "Saving results...")
-        call save_to_binary("output/mandelbrot_output.bin", iter_array)
-    end if
-
-
 contains
-    subroutine save_to_binary(filename, iter_array)
-        character(len=*), intent(in) :: filename
-        integer, intent(in) :: iter_array(nx, ny)
+    subroutine save_to_binary(iter_array, local_ny, rank)
+        integer, intent(in) :: local_ny, rank
+        integer, intent(in) :: iter_array(nx, local_ny)
         integer :: unit
+        character(len=128) :: filename
+        write(filename,'(A,I3.3,A)') 'output/mandelbrot_output_', rank, '.bin'
 
         open(newunit=unit, file=filename, access="stream", form="unformatted", status="replace")
 
         !vielleicht hdf5 lite variablen mit namen, typsicher
-        write(unit) real(nx,wp), real(ny,wp), real(max_iter,wp), &
-                    real(x_min,wp), real(x_max,wp), real(y_min,wp), real(y_max,wp)
+        write(unit) real(nx,wp), real(ny,wp), real(local_ny,wp),real(max_iter,wp)
 
         ! Array als INTEGER(4)
         write(unit) iter_array
