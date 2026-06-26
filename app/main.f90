@@ -14,7 +14,6 @@ program mandelbrot
 
     integer :: local_ny
 
-    integer, allocatable :: recvcounts(:), displs(:)
 
     x_pix = [(i, i = 1, nx)]
     y_pix = [(j, j = 1, ny)]
@@ -25,17 +24,16 @@ program mandelbrot
 
     if (rank == 0) call print_time(rank, "Starting Mandelbrot set calculation; Splitting arrays...")
 
-    call split_arrays(rank, size, y_pix, y_pix_local, local_ny)
+    call split_arrays(y_pix, y_pix_local, local_ny, rank, size)
     allocate(iter_array_local(nx, local_ny))
 
     if (rank == 0) call print_time(rank, "Begin calculation...")
 
-    call mandelbrot_set(x_pix, y_pix_local, local_ny, iter_array_local, rank, size)
+    call mandelbrot_set(x_pix, y_pix_local, iter_array_local, local_ny, rank, size)
 
     if (rank == 0) call print_time(rank, "Combining results...")
 
-    allocate(recvcounts(size), displs(size))
-    call gather_2d(local_ny, rank, size, iter_array_local, iter_array, recvcounts, displs)
+    call gather_2d(iter_array, iter_array_local, local_ny, rank, size)
 
     call MPI_Finalize()
 
@@ -54,11 +52,9 @@ contains
 
         open(newunit=unit, file=filename, access="stream", form="unformatted", status="replace")
 
-        ! Header IMMER als REAL(8) schreiben
         !vielleicht hdf5 lite variablen mit namen, typsicher
         write(unit) real(nx,wp), real(ny,wp), real(max_iter,wp), &
                     real(x_min,wp), real(x_max,wp), real(y_min,wp), real(y_max,wp)
-        !!!!! use iso-fontran_env und und only real64, integer parameter:: wp = real64, auch für mpi_wp
 
         ! Array als INTEGER(4)
         write(unit) iter_array

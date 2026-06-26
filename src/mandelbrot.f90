@@ -41,11 +41,7 @@ contains
     
     end function iter_calc
 
-    subroutine mandelbrot_set(x_pix_array, y_pix_array, local_ny, iter_array, rank, sizee)
-
-        use mpi_f08
-        implicit none
-
+    subroutine mandelbrot_set(x_pix_array, y_pix_array, iter_array, local_ny, rank, sizee)
         integer, intent(in) :: x_pix_array(:), y_pix_array(:)
         integer, intent(in) :: local_ny, rank, sizee
         integer, intent(out) :: iter_array(nx, local_ny)

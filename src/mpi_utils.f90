@@ -5,7 +5,7 @@ module mpi_utils
     private
     public :: split_arrays, gather_2d
 contains
-    subroutine split_arrays(rank, size, y_pix, y_pix_local, local_ny)
+    subroutine split_arrays(y_pix, y_pix_local, local_ny, rank, size)
         integer, intent(in) :: rank, size
         integer, intent(in) :: y_pix(ny)
         integer, intent(out), allocatable :: y_pix_local(:)
@@ -29,15 +29,17 @@ contains
         y_pix_local = y_pix(starty:endy)
     end subroutine split_arrays
 
-    subroutine gather_2d(local_ny, rank, size, iter_array_local, iter_array, recvcounts, displs)
+    subroutine gather_2d(iter_array, iter_array_local, local_ny, rank, size)
         integer, intent(in) :: local_ny, rank, size
         integer, intent(in) :: iter_array_local(nx, local_ny)
         integer, intent(out) :: iter_array(nx, ny)
-        integer :: recvcounts(:), displs(:)
+        integer, allocatable :: recvcounts(:), displs(:)
 
         integer :: p, tmp_start, tmp_end, block
 
         block = ny / size
+
+        allocate(recvcounts(size), displs(size))
 
         do p = 0, size-1
             tmp_start = p*block + 1
