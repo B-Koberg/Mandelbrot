@@ -8,33 +8,33 @@ contains
 
     function pix_to_coord(pix, min_coord, max_coord, n_pix) result(coord)
         integer, intent(in) :: pix
-        real(8), intent(in) :: min_coord, max_coord
+        real(wp), intent(in) :: min_coord, max_coord
         integer, intent(in) :: n_pix
-        real(8) :: coord
+        real(wp) :: coord
     
-        coord = min_coord + (max_coord - min_coord) * real(pix-1, kind=8) / real(n_pix-1, kind=8)
+        coord = min_coord + (max_coord - min_coord) * real(pix-1, wp) / real(n_pix-1, wp)
     end function pix_to_coord
 
     function iter_calc(x_pix, y_pix) result(iter)
         integer, intent(in) :: x_pix, y_pix
         
-        real(8) :: x, y
-        real(8) :: zx, zy, zx2, zy2
+        real(wp) :: x, y
+        real(wp) :: zx, zy, zx2, zy2
         integer :: iter 
 
         x = pix_to_coord(x_pix, x_min, x_max, nx)
         y = pix_to_coord(y_pix, y_min, y_max, ny)
     
-        zx = 0.0d0
-        zy = 0.0d0
-        zx2 = 0.0d0
-        zy2 = 0.0d0
+        zx = 0.0_wp
+        zy = 0.0_wp
+        zx2 = 0.0_wp
+        zy2 = 0.0_wp
         iter = 0
     
-        do while (iter < max_iter .and. zx2 + zy2 <= 4.0d0) !folge divergiert sobald |z|>2
+        do while (iter < max_iter .and. zx2 + zy2 <= 4.0_wp) !folge divergiert sobald |z|>2
             zx2 = zx * zx
             zy2 = zy * zy
-            zy = 2.0d0 * zx * zy + y
+            zy = 2.0_wp * zx * zy + y
             zx = zx2 - zy2 + x
             iter = iter + 1
         end do

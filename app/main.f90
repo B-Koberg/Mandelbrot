@@ -2,7 +2,7 @@ program mandelbrot
     use mpi_f08
     use parameters
     use mandelbrot, only: mandelbrot_set
-    use mpi_utils, only: split_arrays, gather_2d, split_arrays_weighted, gather_2d_weighted
+    use mpi_utils, only: split_arrays, gather_2d
     implicit none
 
     integer :: rank, size
@@ -15,7 +15,6 @@ program mandelbrot
     integer :: local_ny
 
     integer, allocatable :: recvcounts(:), displs(:)
-    integer :: p, tmp_start, tmp_end
 
     x_pix = [(i, i = 1, nx)]
     y_pix = [(j, j = 1, ny)]
@@ -27,7 +26,6 @@ program mandelbrot
     if (rank == 0) call print_time(rank, "Starting Mandelbrot set calculation; Splitting arrays...")
 
     call split_arrays(rank, size, y_pix, y_pix_local, local_ny)
-    print *, "Rank ", rank, " has ", local_ny, " rows. From", y_pix_local(1), "to", y_pix_local(local_ny)
     allocate(iter_array_local(nx, local_ny))
 
     if (rank == 0) call print_time(rank, "Begin calculation...")
@@ -49,29 +47,6 @@ program mandelbrot
 
 
 contains
-
-    subroutine save_to_txtfile(filename, iter_array)
-        character(len=*), intent(in) :: filename
-        integer, intent(in) :: iter_array(nx, ny)
-
-        integer :: i, j
-
-        integer :: unit
-
-        open(newunit=unit, file=filename, status='replace')
-
-        write(unit,*) nx, ny, max_iter, x_min, x_max, y_min, y_max
-        ! Jede Zeile der Datei entspricht einer y-Koordinate
-        do j = 1, ny
-            do i = 1, nx
-                write(unit,'(I8,1X)', advance='no') iter_array(i,j)
-            end do
-            write(unit,*)
-        end do
-
-        close(unit)
-    end subroutine save_to_txtfile
-
     subroutine save_to_binary(filename, iter_array)
         character(len=*), intent(in) :: filename
         integer, intent(in) :: iter_array(nx, ny)
@@ -81,8 +56,8 @@ contains
 
         ! Header IMMER als REAL(8) schreiben
         !vielleicht hdf5 lite variablen mit namen, typsicher
-        write(unit) real(nx,8), real(ny,8), real(max_iter,8), &
-                    real(x_min,8), real(x_max,8), real(y_min,8), real(y_max,8)
+        write(unit) real(nx,wp), real(ny,wp), real(max_iter,wp), &
+                    real(x_min,wp), real(x_max,wp), real(y_min,wp), real(y_max,wp)
         !!!!! use iso-fontran_env und und only real64, integer parameter:: wp = real64, auch für mpi_wp
 
         ! Array als INTEGER(4)
