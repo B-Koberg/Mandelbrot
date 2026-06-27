@@ -7,7 +7,7 @@ module parameters
     integer, parameter :: wp = real64
 
     integer, parameter :: ratio_x = 2, ratio_y = 2
-    integer, parameter :: base_size = 1000
+    integer, parameter :: base_size = 3000
     integer, parameter :: nx = ratio_x * base_size, ny = ratio_y * base_size
     integer, parameter :: max_iter = 150
     real(wp), parameter :: x_min = -2.0_wp, x_max = 2.0_wp

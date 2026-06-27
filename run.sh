@@ -29,7 +29,7 @@ fpm build -V
 fpm run --runner "mpirun -np 4"
 
 # Plotten
-python3 plot.py
+python3 -u main.py
 
 # Bild öffnen im Hintergrund
 xdg-open output/mandelbrot_150.png &

@@ -14,7 +14,7 @@ program mandelbrot
 
     integer :: local_ny
 
-    character(len=1) :: single_file = 's'  ! 's' for single file, 'm' for multiple files
+    character(len=1) :: single_file = 'm'  ! 's' for single file, 'm' for multiple files
 
 
     x_pix = [(i, i = 1, nx)]
